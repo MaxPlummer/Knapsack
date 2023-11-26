@@ -1,8 +1,3 @@
-// 0/1 Knapsack Problem
-// Maximizing value by not taking more than weight W
-// Tabulation Technique
-// Time Complexity O(N*W)
-// Row of dp table should be N and Column of dp table should b W
 #include <iostream>
 #include <vector>
 #include <stack>
@@ -56,8 +51,6 @@ int main() {
 
     std::cout << "OPT(" << i << ", " << W << ", " << k << ") is: " << std::endl;
     std::cout << knapsack(i, W, k) << std::endl;
-    // Print Solution
-    // Taking which items that makes maximizing value
     traceback(i, W);
     for (int n : solutions)
         stk.push(n);
