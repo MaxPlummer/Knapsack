@@ -6,46 +6,33 @@
 int values[100]; // array of item values v
 int weights[100]; // array of item weights w
 int sizes[100]; // array of subset sizes k
-int dp[100][100]; // matrix of solutions for tabulation
+int DP[100][100]; // matrix of solutions for tabulation
 std::stack<int> solutions; // stack to store/print items included in solutions
 
 // solves the knapsack problem
 int knapsack(int i, int W, int k) {
-    for (int n = 0; n <= i; n++) {
-        for (int w = 0; w <= W; w++) {
-            if (n == 0 || w == 0)
-                dp[n][w] = 0;
-            else if (weights[n] <= w)
-                dp[n][w] = std::max(values[n] + dp[n - 1][w - weights[n]], dp[n - 1][w]);
+    for (int l = 0; l <= i; l++) {
+        for (int m = 0; m <= W; m++) {
+            if (l == 0 || m == 0)
+                DP[l][m] = 0;
+            else if (weights[l] <= m)
+                DP[l][m] = std::max(values[l] + DP[l - 1][m - weights[l]], DP[l - 1][m]);
             else
-                dp[n][w] = dp[n - 1][w];
+                DP[l][m] = DP[l - 1][m];
         }
     }
-    return dp[i][W];
+    return DP[i][W];
 }
 
 // gets items included in solution
-void printHelper(int i, int w, int k) {
+void traceback(int i, int w, int k) {
     while (i > 0 && w > 0) {
-        if (dp[i][w] != dp[i - 1][w]) {
+        if (DP[i][w] != DP[i - 1][w]) {
             solutions.push(i); // Mark the item
             w = w - weights[i];
         }
         i = i - 1;
     }
-
-    // print items included from the stack
-    if (solutions.empty())
-        std::cout << "No items were included!";
-    else if (solutions.size() == 1)
-        std::cout << "The item value included is: ";
-    else
-        std::cout << "The item values included are: ";
-    while(!solutions.empty()) {
-        std::cout << solutions.top() << " ";
-        solutions.pop();
-    }
-    std::cout << std::endl;
 }
 
 int main() {
@@ -65,11 +52,29 @@ int main() {
     }
 
     // call knapsack function to solve OPT(i,W,k)
-    std::cout << "OPT(" << i << "," << W << "," << k << ") is: ";
-    std::cout << knapsack(i, W, k) << std::endl;
-
+    int res = knapsack(i, W, k);
     // get items included in solution
-    printHelper(i, W, k);
+    traceback(i, W, k);
+
+    if (solutions.size() == k) {
+        std::cout << "OPT(" << i << "," << W << "," << k << ") is: ";
+        std::cout << res << std::endl;
+
+        // print items included from the stack
+        if (solutions.empty())
+            std::cout << "No items were included!";
+        else if (solutions.size() == 1)
+            std::cout << "The item value included is: ";
+        else
+            std::cout << "The item values included are: ";
+        while(!solutions.empty()) {
+            std::cout << solutions.top() << " ";
+            solutions.pop();
+        }
+        std::cout << std::endl;
+    }
+    else
+        std::cout << "OPT(" << i << "," << W << "," << k << ") has no solution." << std::endl;
 
     // exit
     return 0;
