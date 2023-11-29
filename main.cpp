@@ -47,19 +47,6 @@ void traceback(int i, int w, int k) {
     }
 }
 
-// prints the 3-D matrix dp
-void printMatrix() {
-    for (int x = 0; x < 6; x++) {
-        for (int y = 0; y < 6; y++) {
-            for (int z = 0; z < 6; z++) {
-                std::cout << dp[x][y][z] << " ";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
-    }
-}
-
 int main() {
     int i, w, k; // number of items i, maximum weight W, and size of subset k
     std::cout << "Enter the number of items: " << std::endl;
