@@ -5,42 +5,67 @@
 // global variables
 int values[100]; // array of item values v
 int weights[100]; // array of item weights w
-int sizes[100]; // array of subset sizes k
-int DP[100][100]; // matrix of solutions for tabulation
-std::stack<int> solutions; // stack to store/print items included in solutions
+int dp[100][100][100]; // 3-D matrix of solutions for tabulation
+std::stack<int> itemsUsed; // stack to store/print items included in solutions
 
 // solves the knapsack problem
-int knapsack(int i, int W, int k) {
+int knapsack(int i, int w, int k) {
+    int inf = INT_MAX; // INT_MAX represents infinity
+    // iterate through the 3-D matrix
     for (int l = 0; l <= i; l++) {
-        for (int m = 0; m <= W; m++) {
-            if (l == 0 || m == 0)
-                DP[l][m] = 0;
-            else if (weights[l] <= m)
-                DP[l][m] = std::max(values[l] + DP[l - 1][m - weights[l]], DP[l - 1][m]);
-            else
-                DP[l][m] = DP[l - 1][m];
+        for (int m = 0; m <= w; m++) {
+            for (int n = 0; n <= k; n++) {
+                // implement recursive function
+                if (l < n)
+                    dp[l][m][n] = -inf;
+                else if (m > 0 && n == 0)
+                    dp[l][m][n] = -inf;
+                else if (m == 0 && n > 0)
+                    dp[l][m][n] = -inf;
+                else if (m == 0 && n == 0)
+                    dp[l][m][n] = 0;
+                else if (weights[l] > m)
+                    dp[l][m][n] = dp[l - 1][m][n];
+                else
+                    dp[l][m][n] = std::max(dp[l - 1][m][n], values[l] + dp[l - 1][m - weights[l]][n - 1]);
+            }
         }
     }
-    return DP[i][W];
+    return dp[i][w][k]; // return the last value of the matrix within the bounds of the problem
 }
 
 // gets items included in solution
 void traceback(int i, int w, int k) {
     while (i > 0 && w > 0) {
-        if (DP[i][w] != DP[i - 1][w]) {
-            solutions.push(i); // Mark the item
-            w = w - weights[i];
+        // iterate through the 3-D matrix and check for items used in OPT(i,w,k)
+        if (dp[i][w][k] != dp[i - 1][w][k]) {
+            // if the element above the current element differs, it is included in the solution
+            itemsUsed.push(i); // place the item in the stack
+            w = w - weights[i]; // next valid column of w
         }
-        i = i - 1;
+        i = i - 1; // next row of i
+    }
+}
+
+// prints the 3-D matrix dp
+void printMatrix() {
+    for (int x = 0; x < 6; x++) {
+        for (int y = 0; y < 6; y++) {
+            for (int z = 0; z < 6; z++) {
+                std::cout << dp[x][y][z] << " ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
     }
 }
 
 int main() {
-    int i, W, k; // number of items i, maximum weight W, and size of subset k
+    int i, w, k; // number of items i, maximum weight W, and size of subset k
     std::cout << "Enter the number of items: " << std::endl;
     std::cin >> i;
     std::cout << "Enter the maximum weight: " << std::endl;
-    std::cin >> W;
+    std::cin >> w;
     std::cout << "Enter the size of the subset: " << std::endl;
     std::cin >> k;
 
@@ -52,29 +77,25 @@ int main() {
     }
 
     // call knapsack function to solve OPT(i,W,k)
-    int res = knapsack(i, W, k);
+    int res = knapsack(i, w, k);
     // get items included in solution
-    traceback(i, W, k);
-
-    if (solutions.size() == k) {
-        std::cout << "OPT(" << i << "," << W << "," << k << ") is: ";
-        std::cout << res << std::endl;
-
-        // print items included from the stack
-        if (solutions.empty())
-            std::cout << "No items were included!";
-        else if (solutions.size() == 1)
+    traceback(i, w, k);
+    // print items included from the stack
+    if (itemsUsed.empty() || res <= 0) // if the stack is empty or the result is 0 or less, there is no solution
+        std::cout << "OPT(" << i << "," << w << "," << k << ") has no solution!" << std::endl;
+    else { // otherwise, the solution is printed
+        std::cout << "OPT(" << i << "," << w << "," << k << ") is: " << res << std::endl;
+        if (itemsUsed.size() == 1)
             std::cout << "The item value included is: ";
         else
             std::cout << "The item values included are: ";
-        while(!solutions.empty()) {
-            std::cout << solutions.top() << " ";
-            solutions.pop();
+        // print items included in the solution
+        while (!itemsUsed.empty()) {
+            std::cout << itemsUsed.top() << " ";
+            itemsUsed.pop();
         }
         std::cout << std::endl;
     }
-    else
-        std::cout << "OPT(" << i << "," << W << "," << k << ") has no solution." << std::endl;
 
     // exit
     return 0;
