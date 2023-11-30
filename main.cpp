@@ -27,11 +27,12 @@ int knapsack(int i, int w, int k) {
                 else if (weights[l] > m)
                     dp[l][m][n] = dp[l - 1][m][n];
                 else
-                    dp[l][m][n] = std::max(dp[l - 1][m][n], values[l] + dp[l - 1][m - weights[l]][n - 1]);
+                    dp[l][m][n] = std::max(dp[l - 1][m][n],
+                                           values[l] + dp[l - 1][m - weights[l]][n - 1]);
             }
         }
     }
-    return dp[i][w][k]; // return the last value of the matrix within the bounds of the problem
+    return dp[i][w][k]; // return last value of matrix within bounds of problem
 }
 
 // gets items included in solution
@@ -39,7 +40,7 @@ void traceback(int i, int w, int k) {
     while (i > 0 && w > 0) {
         // iterate through the 3-D matrix and check for items used in OPT(i,w,k)
         if (dp[i][w][k] != dp[i - 1][w][k]) {
-            // if the element above the current element differs, it is included in the solution
+            // if element above current element differs, it is included in the solution
             itemsUsed.push(i); // place the item in the stack
             w = w - weights[i]; // next valid column of w
         }
@@ -67,11 +68,15 @@ int main() {
     int res = knapsack(i, w, k);
     // get items included in solution
     traceback(i, w, k);
+
     // print items included from the stack
-    if (itemsUsed.empty() || res <= 0) // if the stack is empty or the result is 0 or less, there is no solution
-        std::cout << "OPT(" << i << "," << w << "," << k << ") has no solution!" << std::endl;
+    if (itemsUsed.empty() || res <= 0)
+        // if stack is empty or result of knapsack() is 0 or less, there is no solution
+        std::cout << "OPT(" << i << "," << w << "," << k << ") has no solution!"
+                  << std::endl;
     else { // otherwise, the solution is printed
-        std::cout << "OPT(" << i << "," << w << "," << k << ") is: " << res << std::endl;
+        std::cout << "OPT(" << i << "," << w << "," << k << ") is: "
+                  << res << std::endl;
         if (itemsUsed.size() == 1)
             std::cout << "The item value included is: ";
         else
